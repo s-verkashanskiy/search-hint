@@ -1,4 +1,4 @@
 export interface elasticsearchResponse {
-  string: string;
+  strings: string;
   _id: string;
 }

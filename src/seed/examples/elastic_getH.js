@@ -10,10 +10,11 @@ async function run() {
       query: {
         // тип запроса query_string, позволяет искать часть слова (match только ищет целиком)
         query_string: {
-          query: "*кий | *9",
-          fields: ["title", "text" ],
-          analyze_wildcard: true,
-          allow_leading_wildcard: true
+          query: "*кий*",
+          // query: "*кий | *9",
+          fields: ['title', 'locationtype', 'locationname', 'text'],
+          // analyze_wildcard: true,
+          // allow_leading_wildcard: true
         }
       },
       highlight: {
@@ -25,16 +26,32 @@ async function run() {
             title: {
               // matched_fields: ["title", "title.plain^10"],
               // type: "fvh",
-              pre_tags: ["<em>"],
-              post_tags: ["</em>"]
+              pre_tags: ["<b>"],
+              post_tags: ["</b>"]
+            }
+          },
+          {
+            locationtype: {
+              // matched_fields: ["title", "title.plain^10"],
+              // type: "fvh",
+              pre_tags: ["<b>"],
+              post_tags: ["</b>"]
+            }
+          },
+          {
+            locationname: {
+              // matched_fields: ["title", "title.plain^10"],
+              // type: "fvh",
+              pre_tags: ["<b>"],
+              post_tags: ["</b>"]
             }
           },
           {
             text: {
               // matched_fields: ["text", "text.plain"],
               // type: "fvh",
-              pre_tags: ["<em>"],
-              post_tags: ["</em>"]
+              pre_tags: ["<b>"],
+              post_tags: ["</b>"]
             }
           }
         ]

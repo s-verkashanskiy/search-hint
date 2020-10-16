@@ -1,4 +1,4 @@
-import { ArgumentMetadata, BadRequestException, Controller, Get, Injectable, PipeTransform, Query, ValidationPipe } from '@nestjs/common';
+import { ArgumentMetadata, BadRequestException, Controller, Get, Injectable, PipeTransform, Query } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { replacer } from 'src/consts/replacer';
 import { ApiService } from './api.service'
@@ -38,10 +38,10 @@ export class ApiController {
   constructor(private readonly apiService: ApiService) { }
 
   @Get('suggest')
-  find(@Query('query', LengthValidationPipe, ReplacerPipe) qString): any {
+  async find(@Query('query', LengthValidationPipe, ReplacerPipe) qString): Promise<any> {
     console.log('Пользовательская строка запроса: ', qString);
 
     // запросы к ElasticSearch и к MongoDB. Результат возвращаем пользователю.
-    return this.apiService.searchQueryProcessing(qString);
+    return await this.apiService.searchQueryProcessing(qString);
   };
 }

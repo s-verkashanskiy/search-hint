@@ -14,8 +14,8 @@ const LocationsSchema = new mongoose.Schema({
   locationName: String,
   text: String,
 });
-
+console.log(mongo_consts);
 mongoose.model('Api', LocationsSchema)
-.insertMany(JSON.parse(mongo_consts))
+.insertMany(mongo_consts)
 .then(()=> mongoose.disconnect())
 .catch(error => console.log(error));

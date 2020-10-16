@@ -20,14 +20,15 @@ export class ApiService {
   }
 
   // Обработка поискового запроса
-  searchQueryProcessing(qString: string): any {
+  async searchQueryProcessing(qString: string): Promise<any> {
 
     // запрос к БД elasticSearch
-    this.elasticResponse = this.elasticService.request(qString);
-    // if (this.elasticResponse.length === 0) return;
+    this.elasticResponse = await this.elasticService.request(qString);
+    if (this.elasticResponse.length === 0) return;
 
 
     // запрос к MongoDB с целью получить объекты соответствующие массиву ID
-    return this.locationService.request(this.elasticResponse.map(obj => obj._id));
+    return await this.locationService.request(this.elasticResponse.map(obj => obj._id));
+    // return await this.locationService.request([]);
   }
 }

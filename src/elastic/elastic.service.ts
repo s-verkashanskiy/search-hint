@@ -4,25 +4,22 @@ import { Client } from '@elastic/elasticsearch';
 const client = new Client({ node: 'http://localhost:9200' });
 
 
-const elasticResponse = [
-];
-
-
 @Injectable()
 export class ElasticService {
   // метод, который реализует запрос к elastic и возвращает массив объектов с интерфейсом elasticsearchResponse
 
-  request(searchString: string): elasticsearchResponse[] {
-    client.search({
+  async request(searchString: string): Promise<elasticsearchResponse[]> {
+    
+    const { body } = await client.search({
       index: 'locations',
       body: {
         query: {
-          // тип запроса query_string, позволяет искать часть слова (match только ищет целиком)
+          // тип запроса query_string, позволяет искать часть слова (match ищет целое слово)
           query_string: {
-            query: searchString,
-            fields: ['title', , 'locationtype', 'locationname', 'text'],
-            analyze_wildcard: true,
-            allow_leading_wildcard: true
+            query: `*${searchString}*`,
+            fields: ['title', 'locationtype', 'locationname', 'text'],
+            // analyze_wildcard: true,
+            // allow_leading_wildcard: true
           }
         },
         highlight: {
@@ -32,6 +29,22 @@ export class ElasticService {
           fields: [
             {
               title: {
+                // matched_fields: ["title", "title.plain^10"],
+                // type: "fvh",
+                pre_tags: ["<b>"],
+                post_tags: ["</b>"]
+              }
+            },
+            {
+              locationtype: {
+                // matched_fields: ["title", "title.plain^10"],
+                // type: "fvh",
+                pre_tags: ["<b>"],
+                post_tags: ["</b>"]
+              }
+            },
+            {
+              locationname: {
                 // matched_fields: ["title", "title.plain^10"],
                 // type: "fvh",
                 pre_tags: ["<b>"],
@@ -50,15 +63,23 @@ export class ElasticService {
         }
       }
     })
-      .then({ body }=> {
-        console.log(body.hits.hits)
-        console.log(body.hits.hits[0].highlight.title)
-        console.log(body.hits.hits[0].highlight.text)
-        return body.hits.hits.reduce((result, doc) => {
-          result[0].push(doc._source._id);
-        }, [[], []]);
-      }).
-      catch(error => console.log(error);
 
+    const result = [];
+    for (let doc of body.hits.hits) {
+      const tempObj = {
+        strings: [],
+        _id: ''
+      };
+      for (let field in doc.highlight) {
+  
+        tempObj.strings.push(doc.highlight[field][0]);
+      };
+      tempObj._id = doc._source.id;
+      result.push(tempObj);
+    }
+    
+    console.log('----------------------------------\nРезультаты запроса в ElasticSearch', result);
+    
+    return result;
   }
 }

@@ -12,9 +12,10 @@ export class LocationsService {
   // Метод запроса к БД MongoDB по массиву ID
   async request(idArray: string[]) { //: localResponse[] {
 
-    // console.log(idArray);
+    console.log('--------------------------\nid, передаваемые в MongoDB', idArray);
+    
 
-    return await this.localModel.find({_id: idArray}).exec();
+    return await this.localModel.find({_id: { $in: idArray }}).exec();
     // return await this.localModel.find().exec();
   }
 }
