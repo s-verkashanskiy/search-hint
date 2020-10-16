@@ -38,10 +38,10 @@ export class ApiController {
   constructor(private readonly apiService: ApiService) { }
 
   @Get('suggest')
-  async find(@Query('query', LengthValidationPipe, ReplacerPipe) qString): Promise<any> {
+  find(@Query('query', LengthValidationPipe, ReplacerPipe) qString): any {
     console.log('Пользовательская строка запроса: ', qString);
 
     // запросы к ElasticSearch и к MongoDB. Результат возвращаем пользователю.
-    return await this.apiService.searchQueryProcessing(qString);
+    return this.apiService.searchQueryProcessing(qString);
   };
 }

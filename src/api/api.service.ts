@@ -28,7 +28,7 @@ export class ApiService {
 
 
     // запрос к MongoDB с целью получить объекты соответствующие массиву ID
-    return await this.locationService.request(this.elasticResponse.map(obj => obj._id));
-    // return await this.locationService.request([]);
+    return this.locationService.request(this.elasticResponse.map(obj => obj._id));
+    // return this.locationService.request([]);
   }
 }
