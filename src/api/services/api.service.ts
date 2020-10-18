@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { ElasticService } from 'src/elastic/elastic.service';
-import { LocationsService } from 'src/locations/locations.service';
-import { elasticsearchResponse } from '../elastic/elastic.interface';
+import { ElasticService } from 'src/elastic/services/elastic.service';
+import { LocationsService } from 'src/locations/services/locations.service';
+import { elasticsearchResponse } from '../../elastic/interfaces/elastic.interface';
 
 
 @Injectable()
@@ -16,19 +16,20 @@ export class ApiService {
     private readonly elasticService: ElasticService,
     private readonly locationService: LocationsService,
   ) {
-    this.maxQueryLength = +this.configService.get<string>('SEARCH_STRING_LENGTH');
+    this.maxQueryLength = parseInt(this.configService.get<string>('SEARCH_STRING_LENGTH'), 10);
   }
 
   // Обработка поискового запроса
   async searchQueryProcessing(qString: string): Promise<any> {
 
     // запрос к БД elasticSearch
-    this.elasticResponse = await this.elasticService.request(qString);
+    this.elasticResponse = await this.elasticService.findBySearchString(qString);
     if (this.elasticResponse.length === 0) return;
 
-
+    
     // запрос к MongoDB с целью получить объекты соответствующие массиву ID
-    return this.locationService.request(this.elasticResponse.map(obj => obj._id));
+    const ids = this.elasticResponse.map(obj => obj._id);
+    return this.locationService.findByLocationId(ids);
     // return this.locationService.request([]);
   }
 }

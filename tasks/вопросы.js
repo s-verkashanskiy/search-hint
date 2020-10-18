@@ -4,3 +4,6 @@
 
 // rebase (git), git pull & git fetch ()
 // паттерны: observeble, 
+
+// underscore, lodash
+// nest - dynamic module

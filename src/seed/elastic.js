@@ -1,10 +1,9 @@
-const dataset = require('./consts/elastic_consts.txt');
 const { Client } = require('@elastic/elasticsearch')
 const client = new Client({
   node: 'http://localhost:9200'
 })
 
-async function run () {
+module.exports = async function run (dataset) {
   try {
     await client.indices.create({
       index: 'locations',
@@ -12,9 +11,7 @@ async function run () {
         mappings: {
           properties: {
             id: { type: 'text' },
-            title: { type: 'text' },
-            locationtype: { type: 'text' },
-            locationname: { type: 'text' },
+            parent: { type: 'text' },
             text: { type: 'text' }
           }
         }
@@ -57,4 +54,4 @@ async function run () {
   console.log(count)
 }
 
-run().catch(console.log)
+// run().catch(console.log)

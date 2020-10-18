@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { LocationsService } from './locations.service';
-import { LocationsSchema } from './locations.schema';
+import { LocationsService } from './services/locations.service';
+import { LocationsSchema } from './schemas/locations.schema';
 
 
 @Module({

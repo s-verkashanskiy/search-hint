@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "seed:mongo": "fuser -n tcp -k 3000; clear; node src/seed/mongo.js",
+    "seed": "fuser -n tcp -k 3000; clear; node src/seed/seed.js",
     "seed:elastic": "fuser -n tcp -k 3000; clear; node src/seed/elastic.js",
     "seed:get": "fuser -n tcp -k 3000; clear; node src/seed/examples/elastic_get.js",
     "seed:highlighted": "fuser -n tcp -k 3000; clear; node src/seed/examples/elastic_getH.js",
