@@ -27,19 +27,19 @@ for (let region in locations) {
   const regionInDb = new Db({ text: region });
   regionInDb.parent = mongo_db[0]._id;
   mongo_db.push(regionInDb);
-  elastic_db.push(concatObj(regionInDb, mongo_db));
+  elastic_db.push(concatObjs(regionInDb, mongo_db));
 
   for (let city in locations[region]) {
     const cityInDb = new Db({ text: city });
     cityInDb.parent = regionInDb._id;
     mongo_db.push(cityInDb);
-    elastic_db.push(concatObj(cityInDb, mongo_db));
+    elastic_db.push(concatObjs(cityInDb, mongo_db));
 
     locations[region][city].forEach(street => {
       const streetInDb = new Db({ text: street });
       streetInDb.parent = cityInDb._id;
       mongo_db.push(streetInDb);
-      elastic_db.push(concatObj(streetInDb, mongo_db));
+      elastic_db.push(concatObjs(streetInDb, mongo_db));
     })
   }
 }
@@ -54,7 +54,7 @@ Db.insertMany(mongo_db)
 
 
 
-function concatObj(obj, array) {
+function concatObjs(obj, array) {
   const tempObj = { id: obj._id, parent: obj.parent, text: obj.text };
   let temp = { id: obj._id, parent: obj.parent, text: obj.text };
   let parentObj = {};
@@ -63,6 +63,7 @@ function concatObj(obj, array) {
     parentObj = array.find(el => el._id === temp.parent);
     tempObj.text = parentObj.text + ', ' + tempObj.text;
     temp = { id: parentObj._id, parent: parentObj.parent, text: parentObj.text };
+    
   } while (parentObj['parent']);
 
   // console.log(tempObj);
