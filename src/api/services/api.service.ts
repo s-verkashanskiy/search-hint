@@ -2,25 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { ElasticService } from 'src/elastic/services/elastic.service';
+import { localResponse } from 'src/locations/interfaces/locations.interface';
 import { LocationsService } from 'src/locations/services/locations.service';
 import { elasticsearchResponse } from '../../elastic/interfaces/elastic.interface';
 
 
 @Injectable()
 export class ApiService {
-  private readonly maxQueryLength: number;
   private elasticResponse: elasticsearchResponse[];
 
   constructor(
     private readonly configService: ConfigService,
     private readonly elasticService: ElasticService,
     private readonly locationService: LocationsService,
-  ) {
-    this.maxQueryLength = parseInt(this.configService.get<string>('SEARCH_STRING_LENGTH'), 10);
-  }
+  ) {}
 
   // Обработка поискового запроса
-  async searchQueryProcessing(qString: string): Promise<any> {
+  async searchQueryProcessing(qString: string): Promise<localResponse[]> {
 
     // запрос к БД elasticSearch
     this.elasticResponse = await this.elasticService.findBySearchString(qString);

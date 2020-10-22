@@ -1,10 +1,10 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { replacer } from 'src/api/pipes/consts/replacer';
 
-// Транслитерирует строку запроса (eng->rus по qwerty)
 
 @Injectable()
 export class ReplacerPipe implements PipeTransform {
+  
   transform(value: string, metadata: ArgumentMetadata) {
     value = value.toLowerCase();
     let result = '';
@@ -13,7 +13,7 @@ export class ReplacerPipe implements PipeTransform {
       const letter = value.charAt(index);
       result += replacer.has(letter) ? replacer.get(letter) : letter;
     }
+
     return result;
-    // return value;
   }
 }
