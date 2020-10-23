@@ -20,7 +20,7 @@ const Db = mongoose.model('Api', LocationsSchema);
 
 const mongo_db = [];
 mongo_db.push(new Db({ text: 'Россия' }));
-const elastic_db = [{ id: mongo_db._id, text: mongo_db.text }];
+const elastic_db = [{ id: mongo_db[0]._id, text: mongo_db[0].text }];
 
 
 for (let region in locations) {
@@ -45,7 +45,7 @@ for (let region in locations) {
 }
 
 // console.log(mongo_db);
-console.log(elastic_db);
+console.log(elastic_db, elastic_db.length);
 run(elastic_db).catch(console.log)
 
 Db.insertMany(mongo_db)
