@@ -19,7 +19,7 @@ export class ElasticService {
           // { text: { order: "asc" } },
           "_score"
         ],
-        size: 100,
+        size: 1000,
         query: {
           match: {
             text: {
@@ -76,7 +76,7 @@ export class ElasticService {
       result.push(tempObj);
     }
 
-    console.log('----------------------------------\nРезультаты запроса в ElasticSearch', result);
+    console.log('----------------------------------\nРезультаты запроса в ElasticSearch', result, result.length);
 
 
     return result;

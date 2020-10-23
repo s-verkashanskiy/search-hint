@@ -64,7 +64,7 @@ function concatObjs(obj, array) {
     tempObj.text = parentObj.text + ', ' + tempObj.text;
     temp = { id: parentObj._id, parent: parentObj.parent, text: parentObj.text };
     
-  } while (parentObj['parent']);
+  } while (parentObj.parent);
 
   // console.log(tempObj);
   return tempObj;
