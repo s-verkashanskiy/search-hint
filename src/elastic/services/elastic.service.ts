@@ -76,7 +76,7 @@ export class ElasticService {
       result.push(tempObj);
     }
 
-    // console.log('----------------------------------\nРезультаты запроса в ElasticSearch', result, result.length);
+    console.log('----------------------------------\nРезультаты запроса в ElasticSearch', result, result.length);
 
 
     return result;

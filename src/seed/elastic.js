@@ -3,29 +3,111 @@ const client = new Client({
   node: 'http://localhost:9200'
 })
 
-module.exports = async function run (dataset) {
+async function createElasticIndex() {
+
+  // очистка эластика
+  try {
+    await client.indices.delete({ index: '_all' }, { ignore: [404] });
+  } catch (error) {
+    console.error(error.message);
+  }
+  console.log('Indexes have been deleted!');
+
+
+  // создание индекса с анализатором
   try {
     await client.indices.create({
       index: 'locations',
       body: {
+        settings: {
+          // 'index.number_of_shards': 5,
+          // 'index.number_of_replicas': 0,
+          index: {
+            analysis: {
+              filter: {
+                nGram_filter: {
+                  type: 'nGram',
+                  min_gram: 2,
+                  max_gram: 20,
+                  token_chars: ['letter', 'digit']
+                },
+                edgenGram_filter: {
+                  type: 'edgeNGram',
+                  min_gram: 2,
+                  max_gram: 20
+                },
+                // worddelimiter: {
+                //   catenate_all: 'true',
+                //   type: 'word_delimiter',
+                //   preserve_original: 'true'
+                // },
+                // yo_filter: {
+                //   type: 'mapping',
+                //   mappings: ['ё => е', 'Ё => Е']
+                // },
+                // stopwords: {
+                //   type: 'stop',
+                //   stopwords: [_russian_],
+                //   ignore_case: true
+                // }
+              },
+              analyzer: {
+                ngram_index_analyzer: {
+                  type: "custom",
+                  tokenizer: "keyword",
+                  filter: ['lowercase', 'nGram_filter']
+                },
+                edge_ngram_index_analyzer: {
+                  type: "custom",
+                  tokenizer: "keyword",
+                  filter: ['lowercase', 'edgenGram_filter']
+                },
+                // substring_analyzer: {
+                //   type: 'custom',
+                //   tokenizer: 'nGram',
+                //   char_filter: ['yo_filter'],
+                //   filter: [
+                //     'stopwords',
+                //     'app_ngram',
+                //     'asciifolding',
+                //     'lowercase',
+                //     'worddelimiter',
+                //     'russian_morphology',
+                //     'char_filter',
+                //   ]
+                // }
+              },
+              // tokenizer: {
+              //   nGram: {
+              //     type: "nGram",
+              //     min_gram: 2,
+              //     max_gram: 20
+              //   }
+              // },
+            }
+          }
+        },
         mappings: {
           properties: {
-            id: { type: 'text' },
-            parent: { type: 'text' },
-            text: { type: 'text' }
+            id: { type: 'text', index: false },
+            parent: { type: 'text', index: false },
+            // text: { type: 'text', analyzer: 'ngram_index_analyzer', search_analyzer: 'standard' }
           }
         }
       }
     }, { ignore: [400] })
-  
-} catch (error) {
-  console.log('!!!!!!!!!!!', error.meta.body);  
+
+  } catch (error) {
+    console.log('!!!!!!!!!!!', error);
+    // console.log('!!!!!!!!!!!', error.meta.body);  
+  }
 }
 
-  
+
+async function run(dataset) {
+
   const body = dataset.flatMap(doc => [{ index: { _index: 'locations' } }, doc])
   console.log(body);
-
   const { body: bulkResponse } = await client.bulk({ refresh: true, body })
 
   if (bulkResponse.errors) {
@@ -55,3 +137,6 @@ module.exports = async function run (dataset) {
 }
 
 // run().catch(console.log)
+
+
+module.exports = { createElasticIndex, run };

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const locations = require('./consts/data.js');
-const run = require('./elastic.js')
+const { createElasticIndex, run } = require('./elastic.js')
 
 mongoose.connect('mongodb://localhost:27017/search-hints', {
   useNewUrlParser: true,
@@ -18,41 +18,57 @@ const LocationsSchema = new mongoose.Schema({
 });
 const Db = mongoose.model('Api', LocationsSchema);
 
-const mongo_db = [];
-mongo_db.push(new Db({ text: 'Россия' }));
-const elastic_db = [{ id: mongo_db[0]._id, text: mongo_db[0].text }];
 
+(async () => {
+  
+  try {
+    await mongoose.connection.collections['apis'].drop(function (err) {
+      console.log('collection dropped');
+    });
+    await createElasticIndex();
 
-for (let region in locations) {
-  const regionInDb = new Db({ text: region });
-  regionInDb.parent = mongo_db[0]._id;
-  mongo_db.push(regionInDb);
-  elastic_db.push(concatObjs(regionInDb, mongo_db));
-
-  for (let city in locations[region]) {
-    const cityInDb = new Db({ text: city });
-    cityInDb.parent = regionInDb._id;
-    mongo_db.push(cityInDb);
-    elastic_db.push(concatObjs(cityInDb, mongo_db));
-
-    locations[region][city].forEach(street => {
-      const streetInDb = new Db({ text: street });
-      streetInDb.parent = cityInDb._id;
-      mongo_db.push(streetInDb);
-      elastic_db.push(concatObjs(streetInDb, mongo_db));
-    })
+  } catch (error) {
+    console.log(error);
   }
-}
 
-// console.log(mongo_db);
-console.log(elastic_db, elastic_db.length);
-run(elastic_db).catch(console.log)
-
-Db.insertMany(mongo_db)
-.then(()=> mongoose.disconnect())
-.catch(error => console.log(error));
+  const mongo_db = [];
+  mongo_db.push(new Db({ text: 'Россия' }));
+  const elastic_db = [{ id: mongo_db[0]._id, text: mongo_db[0].text }];
 
 
+  for (let region in locations) {
+    const regionInDb = new Db({ text: region });
+    regionInDb.parent = mongo_db[0]._id;
+    mongo_db.push(regionInDb);
+    elastic_db.push(concatObjs(regionInDb, mongo_db));
+
+    for (let city in locations[region]) {
+      const cityInDb = new Db({ text: city });
+      cityInDb.parent = regionInDb._id;
+      mongo_db.push(cityInDb);
+      elastic_db.push(concatObjs(cityInDb, mongo_db));
+
+      locations[region][city].forEach(street => {
+        const streetInDb = new Db({ text: street });
+        streetInDb.parent = cityInDb._id;
+        mongo_db.push(streetInDb);
+        elastic_db.push(concatObjs(streetInDb, mongo_db));
+      })
+    }
+  }
+
+  // console.log(mongo_db);
+  console.log(elastic_db, elastic_db.length);
+  run(elastic_db).catch(console.log)
+
+  try {
+    await Db.insertMany(mongo_db)
+    await mongoose.disconnect()
+    
+  } catch (error) {
+    console.log(error)
+  }
+})();
 
 function concatObjs(obj, array) {
   const tempObj = { id: obj._id, parent: obj.parent, text: obj.text };
@@ -63,7 +79,7 @@ function concatObjs(obj, array) {
     parentObj = array.find(el => el._id === temp.parent);
     tempObj.text = parentObj.text + ', ' + tempObj.text;
     temp = { id: parentObj._id, parent: parentObj.parent, text: parentObj.text };
-    
+
   } while (parentObj.parent);
 
   // console.log(tempObj);
