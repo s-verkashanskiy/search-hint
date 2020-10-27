@@ -25,43 +25,63 @@ async function createElasticIndex() {
           index: {
             analysis: {
               filter: {
-                nGram_filter: {
-                  type: 'nGram',
-                  min_gram: 2,
-                  max_gram: 20,
-                  token_chars: ['letter', 'digit']
-                },
-                edgenGram_filter: {
-                  type: 'edgeNGram',
-                  min_gram: 2,
-                  max_gram: 20
-                },
-                // worddelimiter: {
-                //   catenate_all: 'true',
-                //   type: 'word_delimiter',
-                //   preserve_original: 'true'
+                // nGram_filter: {
+                //   type: 'edgeNGram',
+                //   min_gram: 2,
+                //   max_gram: 20
                 // },
+                // edgenGram_filter: {
+                //   type: 'edgeNGram',
+                //   min_gram: 2,
+                //   max_gram: 20
+                // },
+                worddelimiter: {
+                  catenate_all: 'true',
+                  type: 'word_delimiter',
+                  preserve_original: 'true'
+                },
                 // yo_filter: {
                 //   type: 'mapping',
                 //   mappings: ['ё => е', 'Ё => Е']
                 // },
-                // stopwords: {
-                //   type: 'stop',
-                //   stopwords: [_russian_],
-                //   ignore_case: true
-                // }
+                stopwords: {
+                  type: 'stop',
+                  stopwords: '_russian_',
+                  ignore_case: true
+                }
+              },
+              tokenizer: {
+                nGram_tokenizer: {
+                  type: "ngram",
+                  min_gram: 2,
+                  max_gram: 10,
+                  token_chars: ["letter", "digit"]
+                }
               },
               analyzer: {
                 ngram_index_analyzer: {
                   type: "custom",
-                  tokenizer: "keyword",
-                  filter: ['lowercase', 'nGram_filter']
+                  tokenizer: "nGram_tokenizer",
+                  filter: [
+                    'stopwords',
+                    // 'nGram_filter',
+                    'asciifolding',
+                    'lowercase',
+                    'worddelimiter',
+                    // 'russian_morphology',
+                    // 'char_filter',
+                  ]
                 },
-                edge_ngram_index_analyzer: {
-                  type: "custom",
-                  tokenizer: "keyword",
-                  filter: ['lowercase', 'edgenGram_filter']
-                },
+                // ngram_index_analyzer: {
+                //   type: "custom",
+                //   tokenizer: "keyword",
+                //   filter: ['lowercase', 'nGram_filter']
+                // },
+                // edge_ngram_index_analyzer: {
+                //   type: "custom",
+                //   tokenizer: "keyword",
+                //   filter: ['lowercase', 'edgenGram_filter']
+                // },
                 // substring_analyzer: {
                 //   type: 'custom',
                 //   tokenizer: 'nGram',
@@ -77,21 +97,14 @@ async function createElasticIndex() {
                 //   ]
                 // }
               },
-              // tokenizer: {
-              //   nGram: {
-              //     type: "nGram",
-              //     min_gram: 2,
-              //     max_gram: 20
-              //   }
-              // },
             }
           }
         },
         mappings: {
           properties: {
             id: { type: 'text', index: false },
-            parent: { type: 'text', index: false },
-            // text: { type: 'text', analyzer: 'ngram_index_analyzer', search_analyzer: 'standard' }
+            parents: { type: 'text', index: false },
+            text: { type: 'text', analyzer: 'ngram_index_analyzer', search_analyzer: 'standard' }
           }
         }
       }

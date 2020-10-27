@@ -56,23 +56,24 @@ export class ElasticService {
 
     const result = [];
     const docs = body.hits.hits;
+    
     for (let docIndex = 0; docIndex < docs.length; docIndex++) {
 
       const tempObj = {
-        strings: [],
-        _id: ''
+        string: [],
+        _ids: []
       };
 
-      const  {[docIndex]: {highlight, _source } } = docs;
+      const  {[docIndex]: { highlight, _source } } = docs;
       const hlKeys = Object.keys(highlight);
 
       for (let fieldIndex = 0; fieldIndex < hlKeys.length; fieldIndex++) {
         const field = hlKeys[fieldIndex];
         const {[field]: [hl]} = highlight;
-        tempObj.strings.push(hl);
+        tempObj.string.push(hl);
         
       }
-      tempObj._id = _source.id;
+      tempObj._ids = [..._source.parents];
       result.push(tempObj);
     }
 
