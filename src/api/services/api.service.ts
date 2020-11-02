@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { ElasticService } from 'src/elastic/services/elastic.service';
-import { localResponse } from 'src/locations/interfaces/locations.interface';
 import { LocationsService } from 'src/locations/services/locations.service';
-import { elasticsearchResponse } from '../../elastic/interfaces/elastic.interface';
+import { elasticsearchResponse } from '../../elastic/types/elastic.type';
+import { apiResponse } from '../types/api.type';
+import { last } from 'lodash';
 
 
 @Injectable()
@@ -18,7 +19,7 @@ export class ApiService {
   ) { }
 
   // Обработка поискового запроса
-  async searchQueryProcessing(qString: string): Promise<any[]> {
+  async searchQueryProcessing(qString: string): Promise<apiResponse[]> {
 
     // запрос к БД elasticSearch
     this.elasticResponse = await this.elasticService.findBySearchString(qString);
@@ -27,14 +28,15 @@ export class ApiService {
 
 
     // запрос к MongoDB с целью получить объекты соответствующие массиву ID
-    const ids = this.elasticResponse.map(obj => obj._ids[obj._ids.length - 1]);
-    const mongoObjs = await this.locationService.findByLocationId([...new Set(ids)]);
+    const ids = this.elasticResponse.reduce((acc, {_ids}) => acc.add(last(_ids)), new Set<string>());
+    const mongoObjs = await this.locationService.findByLocationId([...ids]);
 
     const response = this.elasticResponse.map(el => {
+      const {_ids, string: text} = el;
 
       return {
-        text: el.string[0],
-        meta: mongoObjs.find(obj => obj._id == el._ids[el._ids.length - 1])
+        text,
+        meta: mongoObjs.find(({_id}) => _id == last(_ids))
       }
     });
 

@@ -25,11 +25,11 @@ async function createElasticIndex() {
           index: {
             analysis: {
               filter: {
-                // nGram_filter: {
-                //   type: 'edgeNGram',
-                //   min_gram: 2,
-                //   max_gram: 20
-                // },
+                nGram_filter: {
+                  type: 'nGram',
+                  min_gram: 3,
+                  max_gram: 4
+                },
                 // edgenGram_filter: {
                 //   type: 'edgeNGram',
                 //   min_gram: 2,
@@ -51,20 +51,20 @@ async function createElasticIndex() {
                 }
               },
               tokenizer: {
-                nGram_tokenizer: {
-                  type: "ngram",
-                  min_gram: 2,
-                  max_gram: 10,
-                  token_chars: ["letter", "digit"]
+                nGram: {
+                  type: 'nGram',
+                  min_gram: 3,
+                  max_gram: 4,
+                  token_chars: ['letter', 'digit']
                 }
               },
               analyzer: {
                 ngram_index_analyzer: {
-                  type: "custom",
-                  tokenizer: "nGram_tokenizer",
+                  type: 'custom',
+                  tokenizer: 'nGram',
                   filter: [
                     'stopwords',
-                    // 'nGram_filter',
+                    'nGram_filter',
                     'asciifolding',
                     'lowercase',
                     'worddelimiter',
@@ -72,11 +72,6 @@ async function createElasticIndex() {
                     // 'char_filter',
                   ]
                 },
-                // ngram_index_analyzer: {
-                //   type: "custom",
-                //   tokenizer: "keyword",
-                //   filter: ['lowercase', 'nGram_filter']
-                // },
                 // edge_ngram_index_analyzer: {
                 //   type: "custom",
                 //   tokenizer: "keyword",
@@ -104,7 +99,7 @@ async function createElasticIndex() {
           properties: {
             id: { type: 'text', index: false },
             parents: { type: 'text', index: false },
-            text: { type: 'text', analyzer: 'ngram_index_analyzer', search_analyzer: 'standard' }
+            text: { type: 'text', analyzer: 'ngram_index_analyzer'} //, search_analyzer: 'standard' }
           }
         }
       }

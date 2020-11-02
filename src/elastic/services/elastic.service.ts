@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { elasticsearchResponse } from '../interfaces/elastic.interface';
+import { elasticsearchResponse } from '../types/elastic.type';
 
 // import { Client } from '@elastic/elasticsearch';
 // const client = new Client({ node: 'http://localhost:9200' });
@@ -60,20 +60,23 @@ export class ElasticService {
     for (let docIndex = 0; docIndex < docs.length; docIndex++) {
 
       const tempObj = {
-        string: [],
+        string: '',
         _ids: []
       };
 
       const  {[docIndex]: { highlight, _source } } = docs;
+      
       const hlKeys = Object.keys(highlight);
 
       for (let fieldIndex = 0; fieldIndex < hlKeys.length; fieldIndex++) {
         const field = hlKeys[fieldIndex];
         const {[field]: [hl]} = highlight;
-        tempObj.string.push(hl);
+        tempObj.string = hl;
         
       }
-      tempObj._ids = [..._source.parents];
+      _source.parents ?
+      tempObj._ids = [..._source.parents] :
+      tempObj._ids = [_source.id];
       result.push(tempObj);
     }
 
