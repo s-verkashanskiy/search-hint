@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, ValidationPipe } from '@nestjs/common';
 import { ApiService } from '../services/api.service'
 import { LengthValidationPipe, ReplacerPipe } from '../pipes';
 import { apiResponse } from '../types/api.type';
@@ -21,7 +21,18 @@ export class ApiController {
     } else {
       return [{text: ''}];
     }
+  };
 
-     
+  @Post('/suggest')
+  async postSuggest(@Body(new ValidationPipe()) postSuggestDto: postSuggestDto): Promise<any> {
+      return this.authService.signIn(signInDto);
+  }
+    // добавление нового объекта в MongoDB. Возвращаем "статус 200" если успех.
+    const result = await this.apiService.searchQueryProcessing(qString);
+    if (result.length) {
+      return result;
+    } else {
+      return [{text: ''}];
+    }
   };
 }
