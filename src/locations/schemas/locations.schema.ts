@@ -1,8 +1,11 @@
 import * as mongoose from 'mongoose';
 
 export const LocationsSchema = new mongoose.Schema({
-  title: String,
-  locationType: String,
-  locationName: String,
+  parents: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Api',
+    }
+  ],
   text: String,
 });
